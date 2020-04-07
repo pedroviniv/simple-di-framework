@@ -10,6 +10,8 @@ import io.github.kieckegard.sample.simple.di.framework.demo.PhraseEndingService;
 import io.github.kieckegard.sample.simple.di.framework.demo.Service;
 import io.github.kieckegard.sample.simple.di.framework.impl.factory.BeanFactory;
 import io.github.kieckegard.sample.simple.di.framework.impl.factory.BeanFactoryScanner;
+import io.github.kieckegard.sample.simple.di.framework.impl.scopes.Scope;
+import io.github.kieckegard.sample.simple.di.framework.impl.scopes.ScopeScanner;
 import java.util.Map;
 
 /**
@@ -18,28 +20,43 @@ import java.util.Map;
  */
 public class DefaultDIContext implements DIContext {
     
-    private Map<BeanQualifier, BeanFactory> factories;
-    
-    private BeanFactoryScanner scanner;
+    private final Map<BeanQualifier, BeanFactory> beanFactories;
+    private final Map<String, Scope> scopes;
 
-    public DefaultDIContext(BeanFactoryScanner scanner) {
-        this.factories = scanner.scan();
+    public DefaultDIContext(
+            BeanFactoryScanner beanFactoryScanner,
+            ScopeScanner scopeScanner) {
+        
+        this.beanFactories = beanFactoryScanner.scan();
+        this.scopes = scopeScanner.scan();
+    }
+    
+    private String generateBeanKey(BeanFactory beanFactory) {
+        return String.format("%s_%s", beanFactory.getReturnType().getName(),
+                beanFactory.getQualifier());
     }
 
     @Override
     public <T> T getBean(Class<T> beanType, String qualifier) {
         
-        BeanQualifier beanQualifier = new BeanQualifier(beanType, qualifier);
-        BeanFactory factory = this.factories.get(beanQualifier);
+        final BeanQualifier beanQualifier = new BeanQualifier(beanType, qualifier);
+        final BeanFactory beanFactory = this.beanFactories.get(beanQualifier);
         
-        Object instance = factory.create(this);
+        final String beanScope = beanFactory.getScope();
+        
+        final Scope scope = this.scopes.get(beanScope);
+        final String beanKey = this.generateBeanKey(beanFactory);
+        
+        final Object instance = scope.getBean(beanKey, () -> beanFactory.create(this));
         
         return (T) instance;
     }
     
     public static void main(String[] args) {
         
-        DefaultDIContext ctx = new DefaultDIContext(new BeanFactoryScanner());
+        DefaultDIContext ctx = new DefaultDIContext(
+                new BeanFactoryScanner(),
+                new ScopeScanner());
         
         Service service = ctx.getBean(Service.class, "");
         System.out.println(service.helloWorld());

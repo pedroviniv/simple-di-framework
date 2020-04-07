@@ -16,9 +16,10 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface Scope {
+public @interface WithScope {
     
-    public static final String APPLICATION_SCOPE = "APPLIATION_SCOPE";
+    public static final String APPLICATION_SCOPE = "APPLICATION_SCOPE";
+    public static final String THREAD_LOCAL_SCOPE = "THREAD_LOCAL_SCOPE";
     
     String value() default APPLICATION_SCOPE;
 }

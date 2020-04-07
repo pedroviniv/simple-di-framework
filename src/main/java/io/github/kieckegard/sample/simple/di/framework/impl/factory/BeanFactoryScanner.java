@@ -10,7 +10,6 @@ import io.github.kieckegard.sample.simple.di.framework.Inject;
 import io.github.kieckegard.sample.simple.di.framework.Provide;
 import io.github.kieckegard.sample.simple.di.framework.Provider;
 import io.github.kieckegard.sample.simple.di.framework.Qualifier;
-import io.github.kieckegard.sample.simple.di.framework.Scope;
 import io.github.kieckegard.sample.simple.di.framework.impl.BeanQualifier;
 import io.github.kieckegard.sample.simple.di.framework.impl.factory.constructor.ConstructorBeanFactory;
 import io.github.kieckegard.sample.simple.di.framework.impl.factory.constructor.InjectableConstructor;
@@ -37,6 +36,7 @@ import org.reflections.Reflections;
 import org.reflections.scanners.MethodAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
+import io.github.kieckegard.sample.simple.di.framework.WithScope;
 
 /**
  *
@@ -132,8 +132,8 @@ public class BeanFactoryScanner {
                     final Qualifier qualifier = method.getAnnotation(Qualifier.class);
                     final String qualifierId = qualifier == null ? "" : qualifier.value();
                     
-                    final Scope scope = method.getAnnotation(Scope.class);
-                    final String scopeId = scope == null ? Scope.APPLICATION_SCOPE : scope.value();
+                    final WithScope scope = method.getAnnotation(WithScope.class);
+                    final String scopeId = scope == null ? WithScope.APPLICATION_SCOPE : scope.value();
                     
                     return new MethodBeanFactory(ownerBeanDefinition, method, qualifierId, dependencies, scopeId);
                 })
@@ -226,8 +226,8 @@ public class BeanFactoryScanner {
                                         + "@Inject in the same class");
                     }
                     
-                    final Scope scope = type.getAnnotation(Scope.class);
-                    String scopeId = scope == null ? Scope.APPLICATION_SCOPE : scope.value();
+                    final WithScope scope = type.getAnnotation(WithScope.class);
+                    String scopeId = scope == null ? WithScope.APPLICATION_SCOPE : scope.value();
 
                     if (injectableConstructors.isEmpty()) {
                         return new ConstructorBeanFactory(inherits, type, qualifier, scopeId);
