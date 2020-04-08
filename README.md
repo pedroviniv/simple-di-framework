@@ -13,6 +13,7 @@ It has the following features:
 * scopes that controls the bean life cycle
 * scopes auto scan in order to ease the implementation of custom scopes
 * cyclic dependency check (TO-DO)
+* Resource injection (TO-DO)
 
 I'd happy to respond all kind of issue from the community.
 
